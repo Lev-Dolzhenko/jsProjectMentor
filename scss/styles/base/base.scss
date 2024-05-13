@@ -17,3 +17,11 @@ body {
   font-size: 48px;
   font-weight: 700;
 }
+
+.redBorder {
+  border: 1px solid red !important;
+
+  &::placeholder {
+    color: red;
+  }
+}
