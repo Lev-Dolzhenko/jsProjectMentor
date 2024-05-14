@@ -5,26 +5,30 @@ const inputVacancy = document.getElementById("inputVacancy");
 const inputPhone = document.getElementById("inputPhone");
 
 function checkInputName(name) {
-  if (name.match(/^[a-zA-Z]+$/)) {
-    return true;
-  } else {
+  if (
+    !name.match(/^[a-zA-Z]+$/) ||
+    name.length === 0 ||
+    name.slice(0, 1) !== name.slice(0, 1).toUpperCase()
+  ) {
     return false;
+  } else {
+    return true;
   }
 }
 
 function checkInputVacancy(vacancy) {
-  if (vacancy.length > 3) {
-    return true;
-  } else {
+  if (vacancy.length < 3) {
     return false;
+  } else {
+    return true;
   }
 }
 
 function checkInputPhone(phone) {
-  if (phone.match(/^[0-9+]*$/)) {
-    return true;
-  } else {
+  if (!phone.match(/^[0-9+]*$/)) {
     return false;
+  } else {
+    return true;
   }
 }
 
@@ -45,11 +49,40 @@ function generateId() {
   return Math.floor(Math.random() * 100);
 }
 
-//При нажатии на кнопку 'add'
+//Добавление контакта в общий список
 
 const buttonAdd = document.getElementById("buttonAdd");
 
-function addContact(e, nameValue, vacancyValue, phoneValue) {
+const contactsData = {
+  A: [],
+  B: [],
+  C: [],
+  D: [],
+  E: [],
+  F: [],
+  G: [],
+  H: [],
+  I: [],
+  J: [],
+  K: [],
+  L: [],
+  M: [],
+  N: [],
+  O: [],
+  P: [],
+  Q: [],
+  R: [],
+  S: [],
+  T: [],
+  U: [],
+  V: [],
+  W: [],
+  X: [],
+  Y: [],
+  Z: [],
+};
+
+function creatContact(e, nameValue, vacancyValue, phoneValue) {
   e.preventDefault();
   if (
     checkInputName(nameValue) &&
@@ -84,11 +117,126 @@ function addContact(e, nameValue, vacancyValue, phoneValue) {
   }
 }
 
+function isDuplicate(contact) {
+  const resStr = `${contact.name}${contact.vacancy}${contact.phone}`;
+  for (let contactData in contactsData) {
+    const letterArray = contactsData[contactData];
+    for (let letterArrayItem of letterArray) {
+      let currStr = `${letterArrayItem.name}${letterArrayItem.vacancy}${letterArrayItem.phone}`;
+      if (resStr === currStr) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function addContact(contact) {
+  const currLetter = contact.name.slice(0, 1);
+  const currArray = contactsData[currLetter];
+  if (isDuplicate(contact)) {
+    alert("Такой пользователь уже существует!");
+  }
+
+  currArray.push(contact);
+  // console.log(currArray);
+  // console.log(contactsData);
+}
+
 buttonAdd.addEventListener("click", function (e) {
-  const contact = addContact(
+  const contact = creatContact(
     e,
     inputName.value,
     inputVacancy.value,
     inputPhone.value
   );
+  addContact(contact);
+  updateContactCounter(inputName.value.slice(0, 1));
+  // updateLS.call(contactsData);
+  // loadLS();
 });
+
+//рендер контактов
+
+const renderList = document.querySelector(".main__contacts--certain");
+
+function renderContacts(letter) {
+  while (renderList.firstChild) {
+    renderList.removeChild(renderList.firstChild);
+  }
+  for (let contactData in contactsData) {
+    if (letter === contactData) {
+      const letterArray = contactsData[contactData];
+      for (let letterArrayItem of letterArray) {
+        let renderItem = `
+      <div class="main__contact--certain">
+        <div class="main__contact--certain-name">
+          <span>Name: </span>
+          <strong>${letterArrayItem.name}</strong>
+        </div>
+        <div class="main__contact--certain-vacancy">
+          <span>Vacancy: </span>
+          <strong>${letterArrayItem.vacancy}</strong>
+        </div>
+        <div class="main__contact--certain-phone">
+          <span>Phone: </span>
+          <strong>${letterArrayItem.phone}</strong>
+        </div>
+    </div>
+    `;
+        const newElement = document.createElement("div");
+        newElement.innerHTML = renderItem;
+        renderList.appendChild(newElement);
+      }
+    }
+  }
+}
+
+//При нажатии на опеделенную букву
+
+const letterButtons = document.querySelectorAll(".contacts__element");
+
+for (let letterButton of letterButtons) {
+  letterButton.addEventListener("click", function () {
+    renderContacts(letterButton.dataset.letter);
+  });
+}
+
+//Обновление счетчика контактов у определнной буквы
+
+const counterLetters = document.querySelectorAll(".contacts__element--counter");
+
+function updateContactCounter(letter) {
+  for (let counterLetter of counterLetters) {
+    const dataCounterLetter = counterLetter.dataset.letterCounter;
+    if (letter === dataCounterLetter) {
+      const currLengthLetterArray = contactsData[letter].length;
+      counterLetter.textContent = `${currLengthLetterArray}`;
+    }
+  }
+}
+
+//Загрузка в localStorage
+
+function updateLS() {
+  localStorage.setItem("contactsData", JSON.stringify(this));
+}
+
+//Загрузка из localStorage
+
+// function loadLS() {
+//   const retrievedContactsData = JSON.parse(
+//     localStorage.getItem("contactsData")
+//   );
+
+//   console.log(retrievedContactsData);
+
+//   for (let retrievedContactsDataItem in retrievedContactsData) {
+//     updateContactCounter(retrievedContactsDataItem);
+//     console.log(retrievedContactsDataItem);
+//   }
+// }
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   loadLS();
+// });
