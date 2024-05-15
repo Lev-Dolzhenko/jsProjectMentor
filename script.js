@@ -1,5 +1,7 @@
 //Валидация данных в inputs
 
+// import image from "./images/deleteIcon.svg";
+
 const inputName = document.getElementById("inputName");
 const inputVacancy = document.getElementById("inputVacancy");
 const inputPhone = document.getElementById("inputPhone");
@@ -52,35 +54,6 @@ function generateId() {
 //Добавление контакта в общий список
 
 const buttonAdd = document.getElementById("buttonAdd");
-
-const contactsData = {
-  A: [],
-  B: [],
-  C: [],
-  D: [],
-  E: [],
-  F: [],
-  G: [],
-  H: [],
-  I: [],
-  J: [],
-  K: [],
-  L: [],
-  M: [],
-  N: [],
-  O: [],
-  P: [],
-  Q: [],
-  R: [],
-  S: [],
-  T: [],
-  U: [],
-  V: [],
-  W: [],
-  X: [],
-  Y: [],
-  Z: [],
-};
 
 function creatContact(e, nameValue, vacancyValue, phoneValue) {
   e.preventDefault();
@@ -152,8 +125,8 @@ buttonAdd.addEventListener("click", function (e) {
   );
   addContact(contact);
   updateContactCounter(inputName.value.slice(0, 1));
-  // updateLS.call(contactsData);
-  // loadLS();
+  updateLS.call(contactsData);
+  loadLS();
 });
 
 //рендер контактов
@@ -169,21 +142,22 @@ function renderContacts(letter) {
       const letterArray = contactsData[contactData];
       for (let letterArrayItem of letterArray) {
         let renderItem = `
-      <div class="main__contact--certain">
-        <div class="main__contact--certain-name">
-          <span>Name: </span>
-          <strong>${letterArrayItem.name}</strong>
-        </div>
-        <div class="main__contact--certain-vacancy">
-          <span>Vacancy: </span>
-          <strong>${letterArrayItem.vacancy}</strong>
-        </div>
-        <div class="main__contact--certain-phone">
-          <span>Phone: </span>
-          <strong>${letterArrayItem.phone}</strong>
-        </div>
-    </div>
-    `;
+        <div class="main__contact--certain">
+          <div class="main__contact--certain-name">
+            <span>Name: </span>
+            <strong>${letterArrayItem.name}</strong>
+          </div>
+          <div class="main__contact--certain-vacancy">
+            <span>Vacancy: </span>
+            <strong>${letterArrayItem.vacancy}</strong>
+          </div>
+          <div class="main__contact--certain-phone">
+            <span>Phone: </span>
+            <strong>${letterArrayItem.phone}</strong>
+          </div>
+          <button class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+      </div>
+      `;
         const newElement = document.createElement("div");
         newElement.innerHTML = renderItem;
         renderList.appendChild(newElement);
@@ -211,7 +185,9 @@ function updateContactCounter(letter) {
     const dataCounterLetter = counterLetter.dataset.letterCounter;
     if (letter === dataCounterLetter) {
       const currLengthLetterArray = contactsData[letter].length;
-      counterLetter.textContent = `${currLengthLetterArray}`;
+      counterLetter.textContent = `${
+        currLengthLetterArray === 0 ? "" : currLengthLetterArray
+      }`;
     }
   }
 }
@@ -224,19 +200,79 @@ function updateLS() {
 
 //Загрузка из localStorage
 
-// function loadLS() {
-//   const retrievedContactsData = JSON.parse(
-//     localStorage.getItem("contactsData")
-//   );
+function loadLS() {
+  contactsData = JSON.parse(localStorage.getItem("contactsData"));
 
-//   console.log(retrievedContactsData);
+  if (contactsData === null) {
+    contactsData = {
+      A: [],
+      B: [],
+      C: [],
+      D: [],
+      E: [],
+      F: [],
+      G: [],
+      H: [],
+      I: [],
+      J: [],
+      K: [],
+      L: [],
+      M: [],
+      N: [],
+      O: [],
+      P: [],
+      Q: [],
+      R: [],
+      S: [],
+      T: [],
+      U: [],
+      V: [],
+      W: [],
+      X: [],
+      Y: [],
+      Z: [],
+    };
+  }
 
-//   for (let retrievedContactsDataItem in retrievedContactsData) {
-//     updateContactCounter(retrievedContactsDataItem);
-//     console.log(retrievedContactsDataItem);
-//   }
-// }
+  for (let contactData in contactsData) {
+    if (contactsData[contactData].length > 0) {
+      updateContactCounter(contactData);
+    }
+  }
+}
 
-// document.addEventListener("DOMContentLoaded", function () {
-//   loadLS();
-// });
+document.addEventListener("DOMContentLoaded", function () {
+  loadLS();
+});
+
+//Удаление всех контактов
+
+const buttonDeleteAllContacts = document.getElementById("deletAllContacts");
+
+function deleteAllContacts() {
+  for (let contactData in contactsData) {
+    contactsData[contactData].length = 0;
+    updateContactCounter(contactData);
+  }
+  updateLS.call(contactsData);
+}
+
+buttonDeleteAllContacts.addEventListener("click", function () {
+  deleteAllContacts();
+});
+
+//Удаление определенного контакта
+
+const buttonsDeleteCurrContact = document.querySelectorAll(
+  ".main__contact--certain-button--delete"
+);
+
+function deleteCurrContact() {
+  
+}
+
+for (let buttonsDeleteCurrContact of buttonssDeleteCurrContact) {
+  buttonsDeleteCurrContact.addEventListener("click", function () {
+    deleteCurrContact();
+  });
+}

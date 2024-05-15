@@ -347,3 +347,15 @@ body {
 .main__contacts--search-button button {
   padding: 5px 10px;
 }
+
+.main__button--delete button {
+  width: 100%;
+  padding: 10px 0;
+}
+
+.main__contact--certain-button--delete {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  right: 25px;
+}
