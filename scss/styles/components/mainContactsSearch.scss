@@ -4,16 +4,13 @@
   top: 50%;
 
   height: 300px;
-  overflow: hidden;
+  // overflow: hidden;
 
-  overflow-y: scroll;
+  // overflow-y: scroll;
+  overflow: hidden;
 
   border: 1px solid rgba(102, 102, 102, 0.5);
   padding: 20px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 
   &::after {
     content: "Search Contact";

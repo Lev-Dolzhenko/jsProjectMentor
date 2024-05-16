@@ -47,8 +47,14 @@ class Contact {
 
 //Функция для генерации id
 
+const arrayId = [];
+
 function generateId() {
-  return Math.floor(Math.random() * 100);
+  const id = Math.floor(Math.random() * 100);
+  if (arrayId.includes(id)) {
+    generateId();
+  }
+  return id;
 }
 
 //Добавление контакта в общий список
@@ -123,6 +129,7 @@ buttonAdd.addEventListener("click", function (e) {
     inputVacancy.value,
     inputPhone.value
   );
+
   addContact(contact);
   updateContactCounter(inputName.value.slice(0, 1));
   updateLS.call(contactsData);
@@ -138,14 +145,14 @@ function renderContacts(letter) {
     renderList.removeChild(renderList.firstChild);
   }
   for (let contactData in contactsData) {
-    if (letter === contactData) {
+    if (letter === "") {
       const letterArray = contactsData[contactData];
       for (let letterArrayItem of letterArray) {
         let renderItem = `
-        <div class="main__contact--certain">
+        <div data-contact-id="${letterArrayItem.id}" class="main__contact--certain">
           <div class="main__contact--certain-name">
             <span>Name: </span>
-            <strong>${letterArrayItem.name}</strong>
+            <strong data-contact-name=${letterArrayItem.name}>${letterArrayItem.name}</strong>
           </div>
           <div class="main__contact--certain-vacancy">
             <span>Vacancy: </span>
@@ -155,12 +162,38 @@ function renderContacts(letter) {
             <span>Phone: </span>
             <strong>${letterArrayItem.phone}</strong>
           </div>
-          <button class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+            <button data-button-id="${letterArrayItem.id}"  class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
       </div>
       `;
         const newElement = document.createElement("div");
         newElement.innerHTML = renderItem;
         renderList.appendChild(newElement);
+      }
+    } else {
+      if (letter === contactData) {
+        const letterArray = contactsData[contactData];
+        for (let letterArrayItem of letterArray) {
+          let renderItem = `
+        <div data-contact-id="${letterArrayItem.id}" class="main__contact--certain">
+          <div class="main__contact--certain-name">
+            <span>Name: </span>
+            <strong data-contact-name=${letterArrayItem.name}>${letterArrayItem.name}</strong>
+          </div>
+          <div class="main__contact--certain-vacancy">
+            <span>Vacancy: </span>
+            <strong>${letterArrayItem.vacancy}</strong>
+          </div>
+          <div class="main__contact--certain-phone">
+            <span>Phone: </span>
+            <strong>${letterArrayItem.phone}</strong>
+          </div>
+            <button data-button-id="${letterArrayItem.id}"  class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+      </div>
+      `;
+          const newElement = document.createElement("div");
+          newElement.innerHTML = renderItem;
+          renderList.appendChild(newElement);
+        }
       }
     }
   }
@@ -168,11 +201,36 @@ function renderContacts(letter) {
 
 //При нажатии на опеделенную букву
 
-const letterButtons = document.querySelectorAll(".contacts__element");
+let letterButtons = document.querySelectorAll(".contacts__element");
 
 for (let letterButton of letterButtons) {
   letterButton.addEventListener("click", function () {
     renderContacts(letterButton.dataset.letter);
+
+    buttonsDeleteCurrContact = document.querySelectorAll(
+      ".main__contact--certain-button--delete"
+    );
+
+    globalDeleteAllContactsSet = [...buttonsDeleteCurrContact];
+    buttonsDeleteAllContactsSet = new Set(globalDeleteAllContactsSet);
+    // console.log(buttonsDeleteAllContactsSet);
+    buttonsDeleteAllContactsArr = [...buttonsDeleteAllContactsSet];
+    // console.log(buttonsDeleteAllContactsArr);
+
+    for (let buttonDeleteCurrContact of buttonsDeleteCurrContact) {
+      buttonDeleteCurrContact.addEventListener("click", function () {
+        firstFlag = false;
+        secondFlag = true;
+        defineCurrContact(
+          buttonDeleteCurrContact,
+          letterButton.dataset.letter,
+          firstFlag,
+          secondFlag
+        );
+      });
+    }
+
+    // console.log(buttonsDeleteCurrContact);
   });
 }
 
@@ -253,6 +311,8 @@ function deleteAllContacts() {
   for (let contactData in contactsData) {
     contactsData[contactData].length = 0;
     updateContactCounter(contactData);
+    renderContacts("");
+    showAllContacts();
   }
   updateLS.call(contactsData);
 }
@@ -263,16 +323,134 @@ buttonDeleteAllContacts.addEventListener("click", function () {
 
 //Удаление определенного контакта
 
-const buttonsDeleteCurrContact = document.querySelectorAll(
-  ".main__contact--certain-button--delete"
-);
+let buttonsDeleteCurrContact;
+let globalDeleteAllContactsSet;
+let buttonsDeleteAllContactsSet;
+let buttonsDeleteAllContactsArr;
+let firstFlag = false;
+let secondFlag = false;
 
-function deleteCurrContact() {
-  
+function deleteCurrContact(id, letter, isAll, isCurrList) {
+  console.log(isAll, isCurrList);
+  for (let i = 0; i < contactsData[letter].length; i++) {
+    let contact = contactsData[letter][i];
+    if (contact.id == id) {
+      contactsData[letter].splice(i, 1);
+      updateLS.call(contactsData);
+      loadLS();
+      if (isAll && !isCurrList) showAllContacts();
+      else if (!isAll && isCurrList) renderContacts(letter);
+      else {
+        showAllContacts();
+        renderContacts(letter);
+      }
+    }
+  }
+  // console.log(contactsData[letter]);
 }
 
-for (let buttonsDeleteCurrContact of buttonssDeleteCurrContact) {
-  buttonsDeleteCurrContact.addEventListener("click", function () {
-    deleteCurrContact();
+function defineCurrContact(currButton, currLetter, isAll, isCurrList) {
+  const currContactIdData = currButton.dataset.buttonId;
+  deleteCurrContact(currContactIdData, currLetter, isAll, isCurrList);
+}
+
+//Вывод всех контактов
+
+const buttonShowAll = document.querySelector(".main__contacts--search-button");
+const listAllContacts = document.querySelector(".main__contacts--search-list");
+
+function showAllContacts() {
+  while (listAllContacts.firstChild) {
+    listAllContacts.removeChild(listAllContacts.firstChild);
+  }
+  for (let contactData in contactsData) {
+    const letterArray = contactsData[contactData];
+    for (let letterArrayItem of letterArray) {
+      let renderItem = `
+      <div data-contact-id="${letterArrayItem.id}" class="main__contact--certain">
+          <div class="main__contact--certain-name">
+            <span>Name: </span>
+            <strong data-contact-name=${letterArrayItem.name}>${letterArrayItem.name}</strong>
+          </div>
+          <div class="main__contact--certain-vacancy">
+            <span>Vacancy: </span>
+            <strong>${letterArrayItem.vacancy}</strong>
+          </div>
+          <div class="main__contact--certain-phone">
+            <span>Phone: </span>
+            <strong>${letterArrayItem.phone}</strong>
+          </div>
+            <button data-button-id="${letterArrayItem.id}" class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+      </div>
+      `;
+      const newElement = document.createElement("div");
+      newElement.innerHTML = renderItem;
+      listAllContacts.appendChild(newElement);
+    }
+  }
+
+  buttonsDeleteCurrContact = document.querySelectorAll(
+    ".main__contact--certain-button--delete"
+  );
+
+  for (let letterButton of letterButtons) {
+    globalDeleteAllContactsSet = [...buttonsDeleteCurrContact];
+    buttonsDeleteAllContactsSet = new Set(globalDeleteAllContactsSet);
+    buttonsDeleteAllContactsArr = [...buttonsDeleteAllContactsSet];
+    // console.log(buttonsDeleteAllContactsArr);
+
+    for (let buttonDeleteCurrContact of buttonsDeleteCurrContact) {
+      buttonDeleteCurrContact.addEventListener("click", function () {
+        firstFlag = true;
+        secondFlag = false;
+        defineCurrContact(
+          buttonDeleteCurrContact,
+          letterButton.dataset.letter,
+          firstFlag,
+          secondFlag
+        );
+        updateContactCounter(letterButton.dataset.letter);
+      });
+    }
+  }
+}
+
+buttonShowAll.addEventListener("click", function () {
+  showAllContacts();
+});
+
+//Поиск контактов
+
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", function () {
+  const searchTerm = this.value.toLowerCase();
+  listAllContacts.innerHTML = "";
+
+  const filteredData = contactsData[
+    searchTerm.slice(0, 1).toUpperCase()
+  ].filter((item) => item.name.toLowerCase().includes(searchTerm));
+
+  filteredData.forEach((item) => {
+    let renderItem = `
+  <div data-contact-id="${item.id}" class="main__contact--certain">
+      <div class="main__contact--certain-name">
+        <span>Name: </span>
+        <strong data-contact-name=${item.name}>${item.name}</strong>
+      </div>
+      <div class="main__contact--certain-vacancy">
+        <span>Vacancy: </span>
+        <strong>${item.vacancy}</strong>
+      </div>
+      <div class="main__contact--certain-phone">
+        <span>Phone: </span>
+        <strong>${item.phone}</strong>
+      </div>
+        <button data-button-id="${item.id}" class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+  </div>
+  `;
+    const newElement = document.createElement("div");
+    newElement.innerHTML = renderItem;
+    listAllContacts.appendChild(newElement);
   });
-}
+});
