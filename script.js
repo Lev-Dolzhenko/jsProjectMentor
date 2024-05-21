@@ -1,5 +1,13 @@
 //Валидация данных в inputs
 
+let buttonsDeleteCurrContact;
+let buttonsEditCurrContact;
+let globalDeleteAllContactsSet;
+let buttonsDeleteAllContactsSet;
+let buttonsDeleteAllContactsArr;
+let firstFlag = false;
+let secondFlag = false;
+
 // import image from "./images/deleteIcon.svg";
 
 const inputName = document.getElementById("inputName");
@@ -134,6 +142,9 @@ buttonAdd.addEventListener("click", function (e) {
   updateContactCounter(inputName.value.slice(0, 1));
   updateLS.call(contactsData);
   loadLS();
+  inputName.value = "";
+  inputPhone.value = "";
+  inputVacancy.value = "";
 });
 
 //рендер контактов
@@ -163,6 +174,7 @@ function renderContacts(letter) {
             <strong>${letterArrayItem.phone}</strong>
           </div>
             <button data-button-id="${letterArrayItem.id}"  class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+            <button data-button-id-edit='${letterArrayItem.id}' class='main__contact--certain-button--edit'><img src='./images/editIcon.svg'></button>
       </div>
       `;
         const newElement = document.createElement("div");
@@ -188,7 +200,8 @@ function renderContacts(letter) {
             <strong>${letterArrayItem.phone}</strong>
           </div>
             <button data-button-id="${letterArrayItem.id}"  class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
-      </div>
+            <button data-button-id-edit='${letterArrayItem.id}' class='main__contact--certain-button--edit'><img src='./images/editIcon.svg'></button>
+        </div>
       `;
           const newElement = document.createElement("div");
           newElement.innerHTML = renderItem;
@@ -211,11 +224,27 @@ for (let letterButton of letterButtons) {
       ".main__contact--certain-button--delete"
     );
 
-    globalDeleteAllContactsSet = [...buttonsDeleteCurrContact];
-    buttonsDeleteAllContactsSet = new Set(globalDeleteAllContactsSet);
-    // console.log(buttonsDeleteAllContactsSet);
-    buttonsDeleteAllContactsArr = [...buttonsDeleteAllContactsSet];
-    // console.log(buttonsDeleteAllContactsArr);
+    buttonsEditCurrContact = document.querySelectorAll(
+      ".main__contact--certain-button--edit"
+    );
+
+    for (let buttonEditCurrContact of buttonsEditCurrContact) {
+      buttonEditCurrContact.addEventListener("click", function () {
+        popupEdit.classList.remove("none");
+
+        buttonChange.addEventListener("click", function () {
+          editCurrContact(
+            buttonEditCurrContact.dataset.buttonIdEdit,
+            inputNameEdit.value,
+            inputVacancyEdit.value,
+            inputPhoneEdit.value,
+            letterButton.dataset.letter
+          );
+          popupEdit.classList.add("none");
+          renderContacts();
+        });
+      });
+    }
 
     for (let buttonDeleteCurrContact of buttonsDeleteCurrContact) {
       buttonDeleteCurrContact.addEventListener("click", function () {
@@ -227,12 +256,18 @@ for (let letterButton of letterButtons) {
           firstFlag,
           secondFlag
         );
+        renderContacts();
+        updateContactCounter(letterButton.dataset.letter);
       });
     }
 
-    // console.log(buttonsDeleteCurrContact);
+    globalDeleteAllContactsSet = [...buttonsDeleteCurrContact];
+    buttonsDeleteAllContactsSet = new Set(globalDeleteAllContactsSet);
+    buttonsDeleteAllContactsArr = [...buttonsDeleteAllContactsSet];
   });
 }
+
+//Загрузка в localStorage
 
 //Обновление счетчика контактов у определнной буквы
 
@@ -250,13 +285,13 @@ function updateContactCounter(letter) {
   }
 }
 
-//Загрузка в localStorage
-
 function updateLS() {
   localStorage.setItem("contactsData", JSON.stringify(this));
 }
 
 //Загрузка из localStorage
+
+let contactsData;
 
 function loadLS() {
   contactsData = JSON.parse(localStorage.getItem("contactsData"));
@@ -323,15 +358,16 @@ buttonDeleteAllContacts.addEventListener("click", function () {
 
 //Удаление определенного контакта
 
-let buttonsDeleteCurrContact;
-let globalDeleteAllContactsSet;
-let buttonsDeleteAllContactsSet;
-let buttonsDeleteAllContactsArr;
-let firstFlag = false;
-let secondFlag = false;
+// let buttonsDeleteCurrContact;
+// let buttonsEditCurrContact;
+// let globalDeleteAllContactsSet;
+// let buttonsDeleteAllContactsSet;
+// let buttonsDeleteAllContactsArr;
+// let firstFlag = false;
+// let secondFlag = false;
 
 function deleteCurrContact(id, letter, isAll, isCurrList) {
-  console.log(isAll, isCurrList);
+  // console.log(isAll, isCurrList);
   for (let i = 0; i < contactsData[letter].length; i++) {
     let contact = contactsData[letter][i];
     if (contact.id == id) {
@@ -351,6 +387,7 @@ function deleteCurrContact(id, letter, isAll, isCurrList) {
 
 function defineCurrContact(currButton, currLetter, isAll, isCurrList) {
   const currContactIdData = currButton.dataset.buttonId;
+
   deleteCurrContact(currContactIdData, currLetter, isAll, isCurrList);
 }
 
@@ -380,7 +417,9 @@ function showAllContacts() {
             <span>Phone: </span>
             <strong>${letterArrayItem.phone}</strong>
           </div>
-            <button data-button-id="${letterArrayItem.id}" class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+           <button data-button-id="${letterArrayItem.id}" class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+           <button data-button-id-edit='${letterArrayItem.id}' class='main__contact--certain-button--edit'><img src='./images/editIcon.svg'></button>
+
       </div>
       `;
       const newElement = document.createElement("div");
@@ -393,11 +432,20 @@ function showAllContacts() {
     ".main__contact--certain-button--delete"
   );
 
+  buttonsEditCurrContact = document.querySelectorAll(
+    ".main__contact--certain-button--edit"
+  );
+
+  for (let buttonEditCurrContact of buttonsEditCurrContact) {
+    buttonEditCurrContact.addEventListener("click", function () {
+      popupEdit.classList.remove("none");
+    });
+  }
+
   for (let letterButton of letterButtons) {
     globalDeleteAllContactsSet = [...buttonsDeleteCurrContact];
     buttonsDeleteAllContactsSet = new Set(globalDeleteAllContactsSet);
     buttonsDeleteAllContactsArr = [...buttonsDeleteAllContactsSet];
-    // console.log(buttonsDeleteAllContactsArr);
 
     for (let buttonDeleteCurrContact of buttonsDeleteCurrContact) {
       buttonDeleteCurrContact.addEventListener("click", function () {
@@ -447,6 +495,7 @@ searchInput.addEventListener("input", function () {
         <strong>${item.phone}</strong>
       </div>
         <button data-button-id="${item.id}" class='main__contact--certain-button--delete'><img src='./images/deleteIcon.svg'></button>
+        <button data-button-id-edit='${item.id}' class='main__contact--certain-button--edit'><img src='./images/editIcon.svg'></button>
   </div>
   `;
     const newElement = document.createElement("div");
@@ -454,3 +503,133 @@ searchInput.addEventListener("input", function () {
     listAllContacts.appendChild(newElement);
   });
 });
+
+//Появление и скрытие модального окна изменения данных контакта
+
+const popupEdit = document.querySelector(".popup--edit");
+const buttonClosePopup = document.querySelector(".popup__button--close");
+
+function closePopup() {
+  popupEdit.classList.add("none");
+}
+
+buttonClosePopup.addEventListener("click", function () {
+  closePopup();
+});
+
+//Изменение данных определенного контакта
+
+const inputNameEdit = document.getElementById("inputNameEdit");
+const inputVacancyEdit = document.getElementById("inputVacancyEdit");
+const inputPhoneEdit = document.getElementById("inputPhoneEdit");
+
+const buttonChange = document.querySelector(".popup__button-change");
+
+function editCurrContact(id, nameVal, vacancyVal, phoneVal, currLatter) {
+  console.log(currLatter);
+  if (nameVal.slice(0, 1).toUpperCase() === currLatter) {
+    let currArray = contactsData[currLatter];
+    for (let currArrayItem of currArray) {
+      if (id == currArrayItem.id) {
+      }
+    }
+  }
+}
+
+// function editCurrContact(id, nameVal, vacancyVal, phoneVal) {
+//   for (let contactData in contactsData) {
+//     const letterArray = contactsData[contactData];
+//     for (let letterArrayItem of letterArray) {
+//       if (
+//         id == letterArrayItem.id &&
+//         nameVal.slice(0, 1).toLowerCase() ==
+//           letterArrayItem.name.slice(0, 1).toLowerCase()
+//       ) {
+//         letterArrayItem.name = nameVal;
+//         letterArrayItem.vacancy = vacancyVal;
+//         letterArrayItem.phone = phoneVal;
+
+//         renderContacts();
+
+//         updateLS.call(contactsData);
+//       } else if (
+//         id == letterArrayItem.id &&
+//         nameVal.slice(0, 1).toLowerCase() !=
+//           letterArrayItem.name.slice(0, 1).toLowerCase()
+//       ) {
+//         let newLetter = nameVal.slice(0, 1).toUpperCase();
+
+//         letterArrayItem.name = nameVal;
+//         letterArrayItem.vacancy = vacancyVal;
+//         letterArrayItem.phone = phoneVal;
+
+//         contactData[newLetter].push(letterArrayItem);
+
+//         updateLS.call(contactsData);
+//         updateContactCounter(newLetter);
+//         renderContacts();
+//       }
+//     }
+//     renderContacts();
+
+//     updateContactCounter(contactData);
+//   }
+
+//   inputNameEdit.value = "";
+//   inputVacancyEdit.value = "";
+//   inputPhoneEdit.value = "";
+//   popupEdit.classList.add("none");
+//   renderContacts();
+// }
+
+// function editCurrContact(id, nameVal, vacancyVal, phoneVal) {
+//   loadLS();
+//   for (let contactData in contactsData) {
+//     const letterArray = contactsData[contactData];
+//     for (let letterArrayItem of letterArray) {
+//       // console.log(letterArrayItem);
+//       if (
+//         id == letterArrayItem.id &&
+//         nameVal.slice(0, 1).toLowerCase() ==
+//           letterArrayItem.name.slice(0, 1).toLowerCase()
+//       ) {
+//         console.log(letterArrayItem);
+//         letterArrayItem.name = nameVal;
+//         letterArrayItem.vacancy = vacancyVal;
+//         letterArrayItem.phone = phoneVal;
+
+//         // renderContacts(nameVal.slice(0, 1).toUpperCase());
+
+//         updateLS.call(contactsData);
+//       }
+//       //  else if (
+//       //   id == letterArrayItem.id &&
+//       //   nameVal.slice(0, 1).toLowerCase() !=
+//       //     letterArrayItem.name.slice(0, 1).toLowerCase()
+//       // ) {
+//       //   let newLetter = nameVal.slice(0, 1).toUpperCase();
+
+//       //   letterArrayItem.name = nameVal;
+//       //   letterArrayItem.vacancy = vacancyVal;
+//       //   letterArrayItem.phone = phoneVal;
+
+//       //   contactsData[newLetter].push(letterArrayItem);
+//       //   console.log("gi");
+//       //   letterArray.splice(letterArray.indexOf(letterArrayItem), 1);
+
+//       //   updateLS.call(contactsData);
+//       //   updateContactCounter(newLetter);
+//       //   renderContacts("");
+//       // }
+//     }
+//     // renderContacts("");
+
+//     updateContactCounter(contactData);
+//   }
+
+//   inputNameEdit.value = "";
+//   inputVacancyEdit.value = "";
+//   inputPhoneEdit.value = "";
+//   popupEdit.classList.add("none");
+//   renderContacts();
+// }

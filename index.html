@@ -41,8 +41,8 @@
               placeholder="Phone +X XXX XXX XX XX"
             />
             <button id="buttonAdd" class="form__button">Add</button>
-            <button class="form__button">Clear List</button>
-            <button class="form__button">Search</button>
+            <!-- <button class="form__button">Clear List</button>
+            <button class="form__button">Search</button> -->
           </form>
           <div class="main__contacts">
             <div class="main__contacts--left">
@@ -294,15 +294,39 @@
             <div class="main__contacts--search-input">
               <input id="searchInput" type="text" />
             </div>
-            <div class="main__contacts--search-list">
-
-            </div>
+            <div class="main__contacts--search-list"></div>
             <div class="main__contacts--search-button">
               <button>Show All</button>
             </div>
           </div>
           <div class="main__button--delete">
             <button id="deletAllContacts">Delete All Contacts</button>
+          </div>
+          <div class="popup popup--edit none">
+            <form class="popup__form--edit">
+              <input
+                placeholder="Change Name"
+                class="form__input form__input--edit"
+                type="text"
+                id="inputNameEdit"
+              />
+              <input
+                placeholder="Change Vacancy"
+                class="form__input form__input--edit"
+                type="text"
+                id="inputVacancyEdit"
+              />
+              <input
+                placeholder="Change Phone"
+                class="form__input form__input--edit"
+                type="tel"
+                id="inputPhoneEdit"
+              />
+            </form>
+            <button class="popup__button--close">
+              <img src="/images/closeIcon.svg" alt="close icon" />
+            </button>
+            <button class="popup__button-change">Change</button>
           </div>
         </div>
       </div>

@@ -7,6 +7,10 @@ body {
   font-family: "Roboto";
 }
 
+.none {
+  display: none;
+}
+
 .container {
   max-width: 1180px;
   padding: 0 20px;
@@ -25,4 +29,3 @@ body {
     color: red;
   }
 }
-
